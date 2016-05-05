@@ -1,20 +1,19 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "name": "BuildingBlocks",
+  "version": "0.1.0",
+  "description": "An IDE that links Ace Editor to Blockly",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron/electron-quick-start.git"
+    "url": "git+https://github.com/Austen-G/BuildingBlocks.git"
   },
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial"
+    "Blocly",
+    "Ace",
+    "Electron"
   ],
   "author": "GitHub",
   "license": "CC0-1.0",
