@@ -1,19 +1,727 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
-  </body>
+<head>
+<meta charset="utf-8">
+<title>Building Blocks</title>
+<script src="blockly-master/blockly_uncompressed.js"></script>
+<script src="blockly-master/generators/javascript.js"></script>
+<script src="blockly-master/generators/javascript/logic.js"></script>
+<script src="blockly-master/generators/javascript/loops.js"></script>
+<script src="blockly-master/generators/javascript/math.js"></script>
+<script src="blockly-master/generators/javascript/text.js"></script>
+<script src="blockly-master/generators/javascript/lists.js"></script>
+<script src="blockly-master/generators/javascript/colour.js"></script>
+<script src="blockly-master/generators/javascript/variables.js"></script>
+<script src="blockly-master/generators/javascript/procedures.js"></script>
+<script src="blockly-master/generators/python.js"></script>
+<script src="blockly-master/generators/python/logic.js"></script>
+<script src="blockly-master/generators/python/loops.js"></script>
+<script src="blockly-master/generators/python/math.js"></script>
+<script src="blockly-master/generators/python/text.js"></script>
+<script src="blockly-master/generators/python/lists.js"></script>
+<script src="blockly-master/generators/python/colour.js"></script>
+<script src="blockly-master/generators/python/variables.js"></script>
+<script src="blockly-master/generators/python/procedures.js"></script>
+<script src="blockly-master/msg/messages.js"></script>
+<script src="blockly-master/blocks/logic.js"></script>
+<script src="blockly-master/blocks/loops.js"></script>
+<script src="blockly-master/blocks/math.js"></script>
+<script src="blockly-master/blocks/text.js"></script>
+<script src="blockly-master/blocks/lists.js"></script>
+<script src="blockly-master/blocks/colour.js"></script>
+<script src="blockly-master/blocks/variables.js"></script>
+<script src="blockly-master/blocks/procedures.js"></script>
+<script src= "blockly-master/python_compressed.js"></script>
+<script src= "blockly-master/javascript_compressed.js"></script>
+<script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8">
+</script>
+
+<script>
+'use strict';
+// Depending on the URL argument, render as LTR or RTL.
+var rtl = (document.location.search == '?rtl');
+var workspace = null;
+var syntaxMode;
+
+
+// function that starts and injects blockly
+function start() {
+  var toolbox = document.getElementById('toolbox');
+  workspace = Blockly.inject('blocklyDiv',
+          {comments: true,
+           disable: true,
+           collapse: true,
+           grid:
+             {spacing: 25,
+              length: 3,
+              colour: '#ccc',
+              snap: true},
+           maxBlocks: Infinity,
+           media: '../media/',
+           readOnly: false,
+           rtl: rtl,
+           scrollbars: true,
+           toolbox: toolbox,
+           zoom:
+             {controls: true,
+              wheel: true,
+              startScale: 1.0,
+              maxScale: 4,
+              minScale: .25,
+              scaleSpeed: 1.1
+             },
+          });
+  // Restore previously displayed text.
+  var text = sessionStorage.getItem('textarea');
+  if (text) {
+    document.getElementById('importExport').value = text;
+  }
+  taChange();
+  // Restore event logging state.
+  var state = sessionStorage.getItem('logEvents');
+  logEvents(Boolean(state));
+}
+
+// many of the following functions were taken from a tutsplus.com tutorial
+// currently these functions are for a specific example and need to be modified
+// to accept and run with parameters in this program. 
+window.requestFileSystem(window.PERSISTENT, 5 * 1024 * 1024, initFS(), errorHandler());
+function initFS(fs)
+{
+  console.log("Welcome to the filesystem!");
+}
+function errorHandler()
+{
+  var msg = 'An error occured: ';
+
+  switch(err.code)
+  {
+    case FileError.NOT_FOUND_ERR:
+      msg += 'File or directory not found';
+      break;
+
+    case FileError.NOT_READABLE_ERR:
+      msg += 'File or directory not readable';
+      break;
+
+    case FileError.PATH_EXISTS_ERR:
+      msg += 'File or directory already exists';
+      break;
+
+    case FileError.TYPE_MISMATCH_ERR:
+      msg += 'Invalid filetyoe';
+      break;
+
+    default:
+      msg += 'Unknown Error';
+      break;
+  };
+  console.log(msg);
+}
+fs.root.getDirectory('Documents', {create: true}, function(dirEntry) {
+  console.log('You have just created the ' + dirEntry.name + ' directory.');
+}, errorHandler);
+
+function createDir(rootDir, folders)
+{
+  rootDir.getDirectory(folders[0], {create: true}, function(dirEntry)
+{
+  if(folders.length)
+  {
+    createDir(dirEntry, folders.slice(1));
+  }
+}, errorHandler);
+};
+
+createDir(fs.root, 'Documents/code'.split('/'));
+
+fs.root.getDirectory('Documents', {}, function(dirEntry){
+var dirReader = dirEntry.createReader();
+dirReader.readEntries(function(entries) {
+for(var i = 0; i < entries.length; i++)
+{
+  var entry = entries[i];
+  if(entry.isDirectory)
+  {
+    console.log('Directory: ' + entry.fullPath);
+  }
+  else if (entry.isFile)
+  {
+    console.log('File: ' + entry.fullPath);
+  }
+}
+}, errorHandler);
+}, errorHandler);
+
+// function for the normal removal of directories
+fs.root.getDirectory('Documents/Music', {}, function(dirEntry) {
+  dirEntry.remove(function(){
+    console.log('Directory successfully removed.');
+  }, errorHandler);
+}, errorHandler);
+
+// function for recursive removal of directories
+fs.root.getDirectory('Documents/Music', {}, function(dirEntry) {
+  dirEntry.removeRecursively(function(){
+    console.log('Directory successufully removed.');
+  }, errorHandler);
+}, errorHandler);
+
+// this is a method that creates a test file in the target directory
+fs.root.getFile('test.txt', {create: true, exclusive: true}, function(fileEntry) {
+  alert('A file ' + fileEntry.name + ' was created successfully.');
+}, errorHandler);
+
+// function to populate the file
+fs.root.getFile('test.txt', {create: false}, function(fileEntry) {
+  fileEntry.createWriter(function(fileWriter) {
+    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder;
+    var bb = new BlobBuilder();
+    bb.append('Filesystem API is awesome!');
+    fileWriter.write(bb.getBlob('text/plain'));
+  }, errorHandler);
+}, errorHandler);
+
+// function that returns the contents of a file
+fs.root.getFile('test.txt', {}, function(fileEntry) {
+  fileEntry.file(function(file) {
+    var reader = new FileReader();
+    reader.onloadend = function(e) {
+      alert(this.result);
+    };
+    reader.readAsText(file);
+  }, errorHandler);
+}, errorHandler);
+
+// this function allows us to add more data to a file
+fs.root.getFile('test.txt', {create: false}, function(fileEntry) {
+  fileEntry.createWriter(function(fileWriter) {
+    fileWriter.seek(fileWriter.length);
+    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder;
+    var bb = new BlobBuilder();
+    bb.append('Yes, it is!');
+    fileWriter.write(bb.getBlob('text/plain'));
+  }, errorHandler);
+}, errorHandler);
+
+//function that allows us to remove a file from the Filesystem
+fs.root.getFile('test.txt', {create: false}, function(fileEntry) {
+  fileEntry.remove(function() {
+    console.log('File successufully removed.');
+  }, errorHandler);
+}, errorHandler);
+
+// code.tutsplus.com/tutorials/toying-with-the-html5-file-system-api--net-24719
+// on Step 4
+
+
+// function that allows the user to export their blocks to xml
+function toXml() {
+  var output = document.getElementById('importExport');
+  var xml = Blockly.Xml.workspaceToDom(workspace);
+  output.value = Blockly.Xml.domToPrettyText(xml);
+  output.focus();
+  output.select();
+  taChange();
+}
+
+// function that allows the user to input xml to load blocks, currently not in use
+function fromXml() {
+  var input = document.getElementById('importExport');
+  var xml = Blockly.Xml.textToDom(input.value);
+  Blockly.Xml.domToWorkspace(workspace, xml);
+  taChange();
+}
+
+/* this function tests which language the code should be converted to
+and sets the syntax of ace accordingly. It then uses blockly's conversion
+method to output the code of the blocks to the appropriate language
+*/
+function toCode(lang)
+{
+  if(lang === 'Python')
+  {
+    editor.getSession().setMode("ace/mode/python");
+    syntaxMode = "PY";
+  }
+  else if(lang === 'JavaScript')
+  {
+    editor.getSession().setMode("ace/mode/javascript");
+    syntaxMode = "JS";
+  }
+  var output = document.getElementById('importExport');
+  var text = Blockly[lang].workspaceToCode(workspace);
+  editor.setValue(text);
+}
+
+function runCode()
+{
+  // this redefines console.log in a program so it prints to the textArea
+  // in real-js this function is not needed
+  // * Note: This function is only added when code is compiled, and is not part
+  // of the program when the file is created. *
+  var code = "(function () {" + "\n";
+    code += ("var old = console.log;" + "\n");
+    code += ("var logger = document.getElementById('textBox');" + "\n");
+    code += ("console.log = function (message)" + "\n");
+    code += ("{" + "\n");
+    code += ("if (typeof message == 'object') {" + "\n");
+    code += ("logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';" + "\n");
+    code += ("} else {" + "\n");
+    code += ("logger.innerHTML += message;" + "\n");
+    code += ("}}})();" + "\n");
+
+    code += ("\n" + editor.getValue());
+    eval(code);
+
+}
+
+function downloadCode() // this will be completed at a later date
+{
+    var content = editor.getValue();
+    if(syntaxMode === "JS")
+    {
+
+    }
+    else if(syntaxMode === "PY")
+    {
+
+    }
+}
+
+function runBlockly()
+{
+  // Generate JavaScript and run it
+  window.LoopTrap = 1000;
+  Blockly.JavaScript.INFINITE_LOOP_TRAP =
+      'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+  var code = Blockly.JavaScript.workspaceToCode(workspace);
+  Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+  try {
+    eval(code);
+  } catch (e) {
+    document.getElementById('consoleOut').innerHTML = e;
+  }
+}
+
+
+// Disable the "Import from XML" button if the XML is invalid.
+// Preserve text between page reloads.
+function taChange() {
+  var textarea = document.getElementById('importExport');
+  sessionStorage.setItem('textarea', textarea.value)
+  var valid = true;
+  try {
+    Blockly.Xml.textToDom(textarea.value);
+  } catch (e) {
+    valid = false;
+  }
+  document.getElementById('import').disabled = !valid;
+}
+
+function logEvents(state) {
+  var checkbox = document.getElementById('logCheck');
+  checkbox.checked = state;
+  sessionStorage.setItem('logEvents', Number(state));
+  if (state) {
+    workspace.addChangeListener(logger);
+  } else {
+    workspace.removeChangeListener(logger);
+  }
+}
+
+function logger(e) {
+  console.log(e);
+}
+
+</script>
+
+<style>
+html, body {
+  height: 100%;
+}
+body {
+  background-color: #ffffff;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+h1 {
+  font-weight: normal;
+  font-size: 140%;
+}
+div
+{
+
+}
+#blocklyDiv {
+  float: right;
+  height: 95%;
+  width: 50%;
+}
+#textBox
+{
+  height: 23%;
+  width: 45.75%;
+  padding-left: 12px;
+  outline: none;
+  border-color: #D2CFCE;
+  resize: none;
+  background-color: #333333;
+  color: #e6e6e6;
+}
+#collaborators {
+  float: right;
+  width: 30px;
+  margin-left: 10px;
+}
+#collaborators > img {
+  margin-right: 5px;
+  height: 30px;
+  padding-bottom: 5px;
+  width: 30px;
+  border-radius: 3px;
+}
+#importExport {
+  font-family: monospace;
+  padding-left: 12px;
+}
+</style>
+</head>
+<body onload="start()">
+
+  <div id="collaborators"></div>
+
+  <div id="blocklyDiv"></div>
+
+  <p>
+    <input type="button" value="To Python" onclick="toCode('Python')">
+    &nbsp;
+    <input type="button" value="To JavaScript" onclick="toCode('JavaScript')">
+    &nbsp;
+    <input type="button" value="Run JS" onclick="runCode()">
+    &nbsp;
+    <input type="button" value="Clear Output" onclick="document.getElementById('textBox').innerHTML = '';">
+  <!--  &nbsp; -->
+  <!--  <input type="button" value="Download JS" onclick="downloadCode()"> -->
+    <br>
+  </p>
+
+  <div id="importExport" style="width: 46%; height: 65%"></div>
+
+  <div id="empty" style="height: 1.5%;"></div>
+
+  <textarea id="textBox" placeholder="This is the output area" cols="30" rows="5"></textarea>
 
   <script>
-    // You can also require other files to run in this process
-    require('./renderer.js')
+  var editor = ace.edit("importExport");
+  editor.setTheme("ace/theme/monokai");
+  editor.getSession().setMode("ace/mode/javascript");
+  syntaxMode = "JS";
   </script>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Logic" colour="210">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_null" disabled="true"></block>
+      <block type="logic_ternary"></block>
+    </category>
+    <category name="Loops" colour="120">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_repeat" disabled="true"></block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+    </category>
+    <category name="Math" colour="230">
+      <block type="math_number" gap="32"></block>
+      <block type="math_arithmetic">
+        <value name="A">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="B">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_single">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">9</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_trig">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">45</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constant"></block>
+      <block type="math_number_property">
+        <value name="NUMBER_TO_CHECK">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_change">
+        <value name="DELTA">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_round">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">3.1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo">
+        <value name="DIVIDEND">
+          <shadow type="math_number">
+            <field name="NUM">64</field>
+          </shadow>
+        </value>
+        <value name="DIVISOR">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_constrain">
+        <value name="VALUE">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="LOW">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="HIGH">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+    </category>
+    <category name="Text" colour="160">
+      <block type="text"></block>
+      <block type="text_join"></block>
+      <block type="text_append">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_print">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_prompt_ext">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Lists" colour="260">
+      <block type="lists_create_with">
+        <mutation items="0"></mutation>
+      </block>
+      <block type="lists_create_with"></block>
+      <block type="lists_repeat">
+        <value name="NUM">
+          <shadow type="math_number">
+            <field name="NUM">5</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getIndex">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_setIndex">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getSublist">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_split">
+        <value name="DELIM">
+          <shadow type="text">
+            <field name="TEXT">,</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Colour" colour="20">
+      <block type="colour_picker"></block>
+      <block type="colour_random"></block>
+      <block type="colour_rgb">
+        <value name="RED">
+          <shadow type="math_number">
+            <field name="NUM">100</field>
+          </shadow>
+        </value>
+        <value name="GREEN">
+          <shadow type="math_number">
+            <field name="NUM">50</field>
+          </shadow>
+        </value>
+        <value name="BLUE">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="colour_blend">
+        <value name="COLOUR1">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="COLOUR2">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#3333ff</field>
+          </shadow>
+        </value>
+        <value name="RATIO">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <sep></sep>
+    <category name="Variables" colour="330" custom="VARIABLE"></category>
+    <category name="Functions" colour="290" custom="PROCEDURE"></category>
+  </xml>
+
+</body>
 </html>

@@ -1,0 +1,38 @@
+
+html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+    table {
+      height: 100%;
+      width: 100%;
+    }
+    #blocklyDiv {
+      height: 85%;
+      width: 50%;
+      float: left;
+      overflow: hidden;
+    }
+    #codeDiv{
+      width: 49%;
+      overflow: hidden;
+      float: right;
+      text-color: black;
+    }  
+    #masterDiv {
+	
+
+	height: 99%;
+	width: 99%;
+	overflow: hidden;
+
+    }
