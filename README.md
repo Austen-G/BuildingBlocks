@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # electron-quick-start
 
 **Clone and run for a quick way to see an Electron in action.**
@@ -28,3 +29,7 @@ npm install && npm start
 Learn more about Electron and its API in the [documentation](http://electron.atom.io/docs/latest).
 
 #### License [CC0 (Public Domain)](LICENSE.md)
+=======
+# BuildingBlocks
+An IDE that links Ace Editor with Blockly, built in electron
+>>>>>>> 54625e6089cd437a14f872b2f2c65e2fe47a2634
