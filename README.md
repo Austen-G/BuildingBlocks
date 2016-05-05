@@ -1,2 +1,2 @@
 # BuildingBlocks
-An atom modification that provides an IDE for both Blockly and Python in the same environment
+An IDE that links Ace Editor with Blockly, built in electron
