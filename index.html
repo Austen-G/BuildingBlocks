@@ -85,135 +85,54 @@ function start() {
 // many of the following functions were taken from a tutsplus.com tutorial
 // currently these functions are for a specific example and need to be modified
 // to accept and run with parameters in this program.
-window.requestFileSystem(window.PERSISTENT, 5 * 1024 * 1024, initFS(), errorHandler());
-function initFS(fs)
+window.requestFileSystem = window.requestFileSystem ||
+window.webkitRequestFileSystem;
+
+window.requestFileSystem(window.PERSISTENT, 5 * 1024 * 1024, onInitFs(fs), errorHandler());
+
+//logs when the filesystem is loaded
+function onInitFs(fs)
 {
-  console.log("Welcome to the filesystem!");
+  console.log('Opened file system: ' + fs.name);
 }
+
+//error handler function
 function errorHandler()
 {
-  var msg = 'An error occured: ';
-
-  switch(err.code)
+  var msg = '';
+  switch (e.code)
   {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'QUOTA_EXCEEDED_ERR';
+      break;
     case FileError.NOT_FOUND_ERR:
-      msg += 'File or directory not found';
+      msg = 'NOT_FOUND_ERR';
       break;
-
-    case FileError.NOT_READABLE_ERR:
-      msg += 'File or directory not readable';
+    case FileError.SECURITY_ERR:
+      msg = 'SECURITY_ERR';
       break;
-
-    case FileError.PATH_EXISTS_ERR:
-      msg += 'File or directory already exists';
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'INVALID_MODIFICATION_ERR';
       break;
-
-    case FileError.TYPE_MISMATCH_ERR:
-      msg += 'Invalid filetyoe';
+    case FileError.INVALID_STATE_ERR:
+      msg = 'INVALID_STATE_ERR';
       break;
-
     default:
-      msg += 'Unknown Error';
+      msg = 'Unknown Error';
       break;
   };
-  console.log(msg);
+  console.log('Error: ' + msg);
 }
-fs.root.getDirectory('Documents', {create: true}, function(dirEntry) {
-  console.log('You have just created the ' + dirEntry.name + ' directory.');
-}, errorHandler);
 
-function createDir(rootDir, folders)
-{
-  rootDir.getDirectory(folders[0], {create: true}, function(dirEntry)
-{
-  if(folders.length)
-  {
-    createDir(dirEntry, folders.slice(1));
-  }
-}, errorHandler);
-};
-
-createDir(fs.root, 'Documents/code'.split('/'));
-
-fs.root.getDirectory('Documents', {}, function(dirEntry){
-var dirReader = dirEntry.createReader();
-dirReader.readEntries(function(entries) {
-for(var i = 0; i < entries.length; i++)
-{
-  var entry = entries[i];
-  if(entry.isDirectory)
-  {
-    console.log('Directory: ' + entry.fullPath);
-  }
-  else if (entry.isFile)
-  {
-    console.log('File: ' + entry.fullPath);
-  }
-}
-}, errorHandler);
-}, errorHandler);
-
-// function for the normal removal of directories
-fs.root.getDirectory('Documents/Music', {}, function(dirEntry) {
-  dirEntry.remove(function(){
-    console.log('Directory successfully removed.');
-  }, errorHandler);
-}, errorHandler);
-
-// function for recursive removal of directories
-fs.root.getDirectory('Documents/Music', {}, function(dirEntry) {
-  dirEntry.removeRecursively(function(){
-    console.log('Directory successufully removed.');
-  }, errorHandler);
-}, errorHandler);
-
-// this is a method that creates a test file in the target directory
-fs.root.getFile('test.txt', {create: true, exclusive: true}, function(fileEntry) {
-  alert('A file ' + fileEntry.name + ' was created successfully.');
-}, errorHandler);
-
-// function to populate the file
-fs.root.getFile('test.txt', {create: false}, function(fileEntry) {
-  fileEntry.createWriter(function(fileWriter) {
-    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder;
-    var bb = new BlobBuilder();
-    bb.append('Filesystem API is awesome!');
-    fileWriter.write(bb.getBlob('text/plain'));
-  }, errorHandler);
-}, errorHandler);
-
-// function that returns the contents of a file
-fs.root.getFile('test.txt', {}, function(fileEntry) {
-  fileEntry.file(function(file) {
-    var reader = new FileReader();
-    reader.onloadend = function(e) {
-      alert(this.result);
-    };
-    reader.readAsText(file);
-  }, errorHandler);
-}, errorHandler);
-
-// this function allows us to add more data to a file
-fs.root.getFile('test.txt', {create: false}, function(fileEntry) {
-  fileEntry.createWriter(function(fileWriter) {
-    fileWriter.seek(fileWriter.length);
-    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder;
-    var bb = new BlobBuilder();
-    bb.append('Yes, it is!');
-    fileWriter.write(bb.getBlob('text/plain'));
-  }, errorHandler);
-}, errorHandler);
-
-//function that allows us to remove a file from the Filesystem
-fs.root.getFile('test.txt', {create: false}, function(fileEntry) {
-  fileEntry.remove(function() {
-    console.log('File successufully removed.');
-  }, errorHandler);
-}, errorHandler);
-
-// code.tutsplus.com/tutorials/toying-with-the-html5-file-system-api--net-24719
-// on Step 4
-
+//requests permission from the user to use PERSISTENT storage
+window.webkitStorageInfo.requestQuota(PERSISTENT, 1024*1024, function(grantedBytes) {
+  window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, errorHandler);
+}, function(e) {
+  console.log('Error', e);
+});
+// http://www.html5rocks.com/en/tutorials/file/filesystem/
+// on Working with files
+// ----------------------------------------------------------------------------------------------
 
 // function that allows the user to export their blocks to xml
 function toXml() {
