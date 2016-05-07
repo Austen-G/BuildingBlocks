@@ -19,7 +19,7 @@ function createWindow () {
   // Create the browser window.
 //<<<<<<< Updated upstream
 //=======
-  mainWindow = new BrowserWindow({width: 1000, height: 800});
+  mainWindow = new BrowserWindow({width: 1100, height: 900});
 //>>>>>>> Stashed changes
 
   // and load the index.html of the app.

@@ -36,6 +36,8 @@
 <script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8">
 </script>
 
+<script src=newWindow.js></script>
+
 <script>
 'use strict';
 // Depending on the URL argument, render as LTR or RTL.
@@ -258,28 +260,31 @@ function logger(e) {
 <style>
 html, body {
   height: 100%;
+  background-color: #c0c0c0;
 }
 body {
-  background-color: #ffffff;
+  background-color: #c0c0c0;
   font-family: sans-serif;
   overflow: hidden;
 }
 h1 {
   font-weight: normal;
   font-size: 140%;
+  background-color: #c0c0c0;
 }
-div
+p
 {
-
+  background-color: #c0c0c0;
 }
 #blocklyDiv {
   float: right;
   height: 95%;
   width: 50%;
+  padding-right: 1.5%;
 }
 #textBox
 {
-  height: 23%;
+  height: 23.7%;
   width: 45.75%;
   padding-left: 12px;
   outline: none;
@@ -287,6 +292,9 @@ div
   resize: none;
   background-color: #272822;
   color: #e6e6e6;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
 }
 #collaborators {
   float: right;
@@ -320,7 +328,8 @@ div
     <input type="button" value="Run JS" onclick="runCode()">
     &nbsp;
     <input type="button" value="Clear Output" onclick="document.getElementById('textBox').innerHTML = '';">
-  <!--  &nbsp; -->
+    &nbsp;
+    <input type="button" value="New Window" onclick"newWindow()">
   <!--  <input type="button" value="Download JS" onclick="downloadCode()"> -->
     <br>
   </p>
