@@ -19,9 +19,7 @@ function createWindow () {
   // Create the browser window.
 //<<<<<<< Updated upstream
 //=======
-  mainWindow = new BrowserWindow({width: 1100, height: 900});
-//>>>>>>> Stashed changes
-
+  mainWindow = new BrowserWindow({width: 1000, height: 800});
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html')
 
